@@ -23,8 +23,8 @@ def SetToString(data):
 		
 def GetFrequentItems(transaction1, transaction2, ocurrences, tabu):
 	inter = transaction1 & transaction2
-	strIt = ''
-	for large in range(3, len(inter)):
+
+	for large in range(3, len(inter) + 1):
 		for it in itertools.combinations(inter, large):
 			strIt = SetToString(it)
 			if strIt not in tabu:
