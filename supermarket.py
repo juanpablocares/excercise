@@ -15,14 +15,23 @@ def GetSkus(data):
 	else:
 		return set()
 
+def SetToString(data):
+	line = ''
+	for it in data:
+		line += str(it) + ' '
+	return line
+		
 def GetFrequentItems(transaction1, transaction2, ocurrences, tabu):
 	inter = transaction1 & transaction2
-	for it in itertools.combinations(inter, 3):
-		if str(set(it)) not in tabu:
-			if str(set(it)) not in ocurrences:
-				ocurrences[str(set(it))] = 2
-			else:
-				ocurrences[str(set(it))] = ocurrences[str(set(it))] + 1
+	strIt = ''
+	for large in range(3, len(inter)):
+		for it in itertools.combinations(inter, large):
+			strIt = SetToString(it)
+			if strIt not in tabu:
+				if strIt not in ocurrences:
+					ocurrences[strIt] = 2
+				else:
+					ocurrences[strIt] = ocurrences[strIt] + 1
 	return ocurrences
 
 def AppendFrequentItems(all, other):
@@ -32,6 +41,21 @@ def AppendFrequentItems(all, other):
 		else:
 			print 'error'
 	return all
+
+def WriteOutput(sigma, data):
+	file = open('out.txt', 'w')
+	
+	for key, value in data.items():
+		if value >= sigma:
+			combination = key.split(' ')
+			line = str(len(combination) - 1) + ', '
+			line += str(value) + ', '
+			listComb = list(combination)
+			for i in range(len(listComb) - 2):
+				line += str(listComb[i]) + ', '
+			line += str(listComb[len(listComb) - 2])
+			file.write(line + '\n')
+	file.close()
 	
 def Exception(value):
 	if value == 1:

@@ -23,8 +23,6 @@ if supermarket.FileExist(fileName):
 			ocurrences = supermarket.GetFrequentItems(transactions[i], transactions[j], ocurrences, allFrequentItems)
 		allFrequentItems = supermarket.AppendFrequentItems(allFrequentItems, ocurrences)
 
-	for comb, value in allFrequentItems.items():
-		if value >= sigma:
-			print comb + ' ' + str(value)
+	supermarket.WriteOutput(sigma, allFrequentItems)
 else:
 	supermarket.Exception(1)
