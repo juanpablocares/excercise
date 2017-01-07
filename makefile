@@ -5,18 +5,14 @@ clean-pyc:
 	find . -name '*~' -exec rm --force  {} +
 
 
-test-1:
-	clean-pyc:
+test:
 	python main.py retail_25k.dat 4
 	
-test-2:
-	clean-pyc:
+test-1:
 	python main.py min.dat 3
 	
-test-3:
-	clean-pyc:
+test-2:
 	python main.py retail.dat 2
 
 run:
-	clean-pyc:
 	python main.py retail.dat $(sigma)
