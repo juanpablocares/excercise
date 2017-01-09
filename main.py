@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+#own module that do main tasks
 import supermarket
 
 """
@@ -44,8 +45,11 @@ if supermarket.FileExist(fileName):
 			                                          transactions[j],
 													  ocurrences,
 													  allFrequentItems)
+		#after running with all the rest transactions, stores this information
+		#into the dictionary that have all
 		allFrequentItems = supermarket.AppendFrequentItems(allFrequentItems, ocurrences)
 
-	supermarket.WriteOutput(sigma, allFrequentItems)
+	#finally write into the output file
+	supermarket.WriteOutput(fileName, sigma, allFrequentItems)
 else:
 	supermarket.Exception(1)
