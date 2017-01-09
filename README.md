@@ -60,5 +60,7 @@ I have two versions to get all the combinations of a given intersetion
 The first one use itertools.combinations and the second one is mine version.
 To activate one or the other you can see more detail in supermarket.py file
 in line 73.
-By default it is activated "itertools.combinations" my version takes more time
-for that reason I prefered this way
+By default it is activated "itertools.combinations" my version takes
+longer time for that reason I prefered this way :confused:. There must be some
+combinations versions in internet but I prefered to create my own version withouth
+see other algorithms.
