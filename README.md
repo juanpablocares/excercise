@@ -4,7 +4,9 @@
 
 To execute the algorithm it has to execute the next line
 
-"make run $(sigma_value)"
+```
+make run $(sigma_value)
+```
 
 $(sigma_value) = minimal support level
 
@@ -19,7 +21,9 @@ The name of the output is the same as the input file but using an extension ".ou
 
 Additionaly I added an output file of my execution using the given example.
 It can be run using this line
-"make run test"
+```
+make run test
+```
 And the result can be found on the file "retail_25k.out"
 
 
