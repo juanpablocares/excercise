@@ -80,7 +80,7 @@ def GenerateCombinations(values, large):
 		combinations.append(s)
 	return combinations
 		
-def GetFrequentItems(transaction1, transaction2, ocurrences, tabu):
+def GetFrequentItems(transaction1, transaction2, ocurrences):
 	"""
 	Given two transactions this function 
 	
@@ -109,7 +109,7 @@ def GetFrequentItems(transaction1, transaction2, ocurrences, tabu):
 		#I tried to make this function work for "item sets
 		#of size 3 or more" but in some cases it has issues (aprox 9) :(
 		#for large in range(3, inter):
-		for large in range(3, 4):
+		for large in range(3, len(inter) + 1):
 			#Create all the combinations of the intersection starting in 3
 			#here are two version to get the combinations, my own one and 
 			#itertools.combinations. If it is needed to activate the second one
@@ -120,19 +120,18 @@ def GetFrequentItems(transaction1, transaction2, ocurrences, tabu):
 			#for it in comb:
 				#transform the combination into a string to store it in
 				#a dictionary
-				strIt = SetToString(it)
 				#if the combination is not yet in dictionary that store
 				#all the combinations, it can continue. Otherwise it means
 				#that this single combination has been already count
-				if strIt not in tabu:
+				strIt = SetToString(it)
+				if strIt in ocurrences:
 					#if enter here means that this combination has to be count
 					#as a new one (first case) or just add one counter. The first
 					#case start with 2 because it count the first combination
 					#of the first transaction and the second one.
-					if strIt not in ocurrences:
-						ocurrences[strIt] = 2
-					else:
-						ocurrences[strIt] = ocurrences[strIt] + 1
+					ocurrences[strIt] = ocurrences[strIt] + 1
+				else:
+					ocurrences[strIt] = 2
 	return ocurrences
 
 def AppendFrequentItems(all, other):
@@ -215,7 +214,7 @@ def GetSkus(data):
 	"""
 	skus = set()
 	for sku in data:
-		skus.add(sku)
+		skus.add(int(sku))
 	#I discard a transaction if it has less
 	#than 3 skus because there is no way that
 	#this case can have 3 or more combinations
@@ -242,8 +241,9 @@ def SetToString(data):
 	"""
 	line = ''
 	s = sorted(list(data))
-	for it in s:
-		line += str(it) + ' '
+	for it in range(len(s)-1):
+		line += str(s[it]) + ' '
+	line += str(s[len(s)-1])
 	return line
 
 def Exception(value):
