@@ -14,17 +14,17 @@ class Node(object):
 		number : int
 			number to initiate this node
 		"""
-		self.count = 0
+		self.count = set()
 		self.number = number
 		#self.children_numbers = []
 		self.children = []
 
 	
-	def increase_count(self):
+	def increase_count(self, transaction):
 		"""
 		increase count of this object
 		"""
-		self.count += 1
+		self.count = self.count | transaction
 	
 
 	def has_children(self, number):
@@ -109,7 +109,7 @@ class Node(object):
 	
 	
 
-	def add_combination(self, combination):
+	def add_combination(self, combination, transaction):
 		"""
 		add a given combination to the tree. Additionaly if it already
 		exist, it increase the counter
@@ -125,19 +125,19 @@ class Node(object):
 		index = self.has_children(value)
 		if len(comb) > 0:
 			if index >= 0:
-				self.children[index].add_combination(set(comb))
+				self.children[index].add_combination(set(comb), transaction)
 			else:
 				new_value = Node(value)
 				self.children.append(new_value)
-				self.children[-1].add_combination(set(comb))
+				self.children[-1].add_combination(set(comb), transaction)
 		else:
 			if index >= 0:
-				self.children[index].increase_count()
+				self.children[index].increase_count(transaction)
 			else:
 				new_value = Node(value)
 				self.children.append(new_value)
-				self.children[-1].increase_count()
-				self.children[-1].increase_count()
+				self.children[-1].increase_count(transaction)
+				#self.children[-1].increase_count()
 
 				
 	
@@ -150,7 +150,7 @@ class Node(object):
 		return False
 	
 
-	def print_nodes(self, combination, file, sku, sigma):
+	def print_nodes(self, combination, file, sigma):
 		"""
 		print the tree to the given file reference
 
@@ -169,10 +169,9 @@ class Node(object):
 		comb = set(combination)
 		comb.add(self.number)
 		
-		if self.count >= sigma:
-			line = str(len(comb) + 1) + ', '
-			line += str(self.count) + ', '
-			line += str(sku) + ', '
+		if len(self.count) >= sigma:
+			line = str(len(comb)) + ', '
+			line += str(len(self.count)) + ', '
 			listComb = list(comb)
 			for i in range(len(listComb) - 1):
 				line += str(listComb[i]) + ', '
@@ -181,9 +180,9 @@ class Node(object):
 		
 		if len(self.children) > 0:
 			for child in self.children:
-				child.print_nodes(comb, file, sku, sigma)
+				child.print_nodes(comb, file, sigma)
 	
-	def print_values(self, file, sku, sigma):
+	def print_values(self, file, sigma):
 		"""
 		entry point to print into the file
 
@@ -199,7 +198,7 @@ class Node(object):
 		"""
 		for child in self.children:
 			combination = set()
-			child.print_nodes(combination, file, sku, sigma)
+			child.print_nodes(combination, file, sigma)
 
 	def create_combinations(self, other, combination):
 		"""

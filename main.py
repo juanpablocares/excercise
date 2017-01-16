@@ -66,36 +66,47 @@ if supermarket.FileExist(fileName):
 	file = open(fileName.split('.')[0] + '.out', 'w')
 
 	tmpTransaction = set()
+	intersections = list()
 	for i in range(len(transactions)):
-		for j in range(len(transactions)):
-			if len(transactions[i]) < len(transactions[j]):
-				tmpTransaction = transactions[i]
-				transactions[i] = transactions[j]
-				transactions[j] = tmpTransaction
+		intersections.append(set())
+		#for j in range(len(transactions)):
+			#if len(transactions[i]) < len(transactions[j]):
+				#tmpTransaction = transactions[i]
+				#transactions[i] = transactions[j]
+				#transactions[j] = tmpTransaction
+	
+	for i in range(len(transactions)):
+		intersections[i].add(i)
+		for j in range(i + 1, len(transactions)):
+			if len(transactions[i] & transactions[j]) >= 3:
+				#print str(i) + ' ' + str(j)
+				intersections[i].add(j)
+	
+	list_transactions = list(range(0, len(transactions)))
+	
+	general_tree = Tree.Node(-1)
 
-	for sku in all:
-		#print sku
-		for large in reversed(range(2, larger)):
-			general_tree = Tree.Node(-1)
-			for i in range(len(transactions)):
-				tmp_tree = Tree.Node(-1)
-				if sku in transactions[i]:
-					for j in range(i + 1, len(transactions)):
-						if sku in transactions[j]:
-							inter = transactions[i] & transactions[j]
-							inter.remove(sku)
-							for it in itertools.combinations(inter, large):
-								local = set(it)
-								if not general_tree.find_combination(local):
-									tmp_tree.add_combination(local)
-								local.clear()
-					general_tree.append(tmp_tree)
-			general_tree.print_values(file, sku, sigma)
-
-		for i in range(len(transactions)):
-			if sku in transactions[i]:
-				transactions[i].remove(sku)
+	for i in intersections:
+		min = list(set(i))
+		min.sort()
+		value = min.pop(0)
+		for it in itertools.combinations(min, sigma - 1):
+			intersection = transactions[value]
+			for t in it:
+				if len(intersection) >= 3:
+					intersection = intersection & set(transactions[t])
+				else:
+					break
+			if len(intersection) >= 3:
+				for large in range(3, len(intersection) + 1):
+					for inter in itertools.combinations(intersection, large):
+						values = set()
+						values.add(value)
+						values = values | set(it)
+						general_tree.add_combination(set(inter), values)
+	general_tree.print_values(file, sigma)
 	file.close()
+	
 else:
 	supermarket.Exception(1)
 	
