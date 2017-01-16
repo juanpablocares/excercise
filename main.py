@@ -84,47 +84,40 @@ if supermarket.FileExist(fileName):
 	
 	list_transactions = list(range(0, len(transactions)))
 	
-	general_tree = Tree.Node(-1)
+	ordered_skus = list(all)
+	ordered_skus.sort()
+	for sku in ordered_skus:
+		sku_list = set()
+		for i in range(len(transactions)):
+			if sku in transactions[i]:
+				sku_list.add(i)
 
-	for i in intersections:
-		min = list(set(i))
-		min.sort()
-		value = min.pop(0)
-		for it in itertools.combinations(min, sigma - 1):
-			intersection = transactions[value]
-			for t in it:
-				if len(intersection) >= 3:
-					intersection = intersection & set(transactions[t])
-				else:
-					break
-			if len(intersection) >= 3:
-				for large in range(3, len(intersection) + 1):
-					for inter in itertools.combinations(intersection, large):
-						values = set()
-						values.add(value)
-						values = values | set(it)
-						general_tree.add_combination(set(inter), values)
-	general_tree.print_values(file, sigma)
+		if len(sku_list) >= sigma:
+			general_tree = Tree.Node(-1)
+			for it in itertools.combinations(sku_list, sigma):
+				intersection = set()
+				first_time = True
+				for t in it:
+					if len(intersection) >= 3:
+						intersection = intersection & set(transactions[t])
+					elif first_time:
+						intersection = transactions[t]
+						first_time = False
+					else:
+						break
+				if sku in intersection and len(intersection) >= 3:
+					intersection.remove(sku)
+					for large in range(2, 3):
+						for inter in itertools.combinations(intersection, large):
+							tmp = set()
+							tmp.add(sku)
+							tmp = tmp| set(inter)
+							general_tree.add_combination(tmp, set(it))
+
+			general_tree.print_values(file, sigma)
+			for t in sku_list:
+				transactions[t].remove(sku)
 	file.close()
 	
 else:
 	supermarket.Exception(1)
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
