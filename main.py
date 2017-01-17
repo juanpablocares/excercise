@@ -6,6 +6,7 @@ import supermarket
 import itertools
 import collections
 import Tree
+import operator
 
 """
 Main program
@@ -24,6 +25,7 @@ file
 
 fileName = sys.argv[1]
 sigma    = int(sys.argv[2])
+size_group = 3
 
 if supermarket.FileExist(fileName):
 	#counts the frequencies of each combination
@@ -31,92 +33,71 @@ if supermarket.FileExist(fileName):
 	#list of transactions (sets)
 	transactions = []
 	
-	allSkus = set()
 	file = open(fileName)
-	all = set()
-
-	algo = {}
-	larger = 0
+	set_sku = set()
+	skus_counter = {}
+	
+	#read file
 	for line in file:
-		skus = supermarket.GetSkus(line.strip().split(' '))
+		skus = supermarket.get_skus(line.strip().split(' '), size_group)
+		
 		for s in skus:
-			if s not in algo:
-				algo[s] = 1
+			if s not in skus_counter:
+				skus_counter[s] = 1
 			else:
-				algo[s] = algo[s] + 1
-		all = all|skus
+				skus_counter[s] = skus_counter[s] + 1
+
+		set_sku = set_sku | skus
 		if len(skus) != 0:
 			transactions.append(skus)
-			if len(skus) > larger:
-				larger = len(skus)
 	
-	for sku, count in algo.items():
-		if count < sigma:
-			i = 0
-			while i < len(transactions):
-				if sku in transactions[i]:
-					transactions[i].remove(int(sku))
-					if len(transactions[i]) < sigma:
-						del transactions[i]
-					else:
-						i = i + 1
-				else:
-					i = i + 1
-	
-	file = open(fileName.split('.')[0] + '.out', 'w')
+	transactions = supermarket.reduce_transactions_using_sigma(transactions, skus_counter, sigma)
+	skus_order = sorted(skus_counter, key=skus_counter.__getitem__)
 
-	tmpTransaction = set()
-	intersections = list()
-	for i in range(len(transactions)):
-		intersections.append(set())
-		#for j in range(len(transactions)):
-			#if len(transactions[i]) < len(transactions[j]):
-				#tmpTransaction = transactions[i]
-				#transactions[i] = transactions[j]
-				#transactions[j] = tmpTransaction
+	#open write file
+	file = open(fileName.split('.')[0] + '.out', 'w')
 	
-	for i in range(len(transactions)):
-		intersections[i].add(i)
-		for j in range(i + 1, len(transactions)):
-			if len(transactions[i] & transactions[j]) >= 3:
-				#print str(i) + ' ' + str(j)
-				intersections[i].add(j)
-	
-	list_transactions = list(range(0, len(transactions)))
-	
-	ordered_skus = list(all)
-	ordered_skus.sort()
-	for sku in ordered_skus:
-		sku_list = set()
+	#generate all possible combinations that contain each
+	#SKU in order to reduce the search space
+	for sku in skus_order:
+		print sku
+		#create a local lista where sku exist
+		sku_list = list()
 		for i in range(len(transactions)):
 			if sku in transactions[i]:
-				sku_list.add(i)
-
+				sku_list.append(i)
+		sku_list.sort()
+		#at least the length of transaction that contain this
+		#SKU has to be sigma, other way it does not respect
+		#the minimum support level
 		if len(sku_list) >= sigma:
 			general_tree = Tree.Node(-1)
-			for it in itertools.combinations(sku_list, sigma):
-				intersection = set()
-				first_time = True
-				for t in it:
-					if len(intersection) >= 3:
-						intersection = intersection & set(transactions[t])
-					elif first_time:
-						intersection = transactions[t]
-						first_time = False
-					else:
-						break
-				if sku in intersection and len(intersection) >= 3:
-					intersection.remove(sku)
-					for large in range(2, 3):
-						for inter in itertools.combinations(intersection, large):
-							tmp = set()
-							tmp.add(sku)
-							tmp = tmp| set(inter)
-							general_tree.add_combination(tmp, set(it))
+			intersection = set()
+			for index_1 in range(len(sku_list)):
+				i = sku_list[index_1]
+				prev_intersection = set(transactions[i])
+				for index_2 in range(index_1 + 1, len(sku_list)):
+					j = sku_list[index_2]
+					intersection = set(transactions[j]) & prev_intersection
+				
+					if len(intersection) >= size_group:
+						size_intersection = len(intersection)
+						intersection.remove(sku)
+						for sku_combination_size in range(size_group - 1, size_intersection):
+							for inter in itertools.combinations(intersection, sku_combination_size):
+								tmp = set()
+								tmp.add(sku)
+								tmp = tmp | set(inter)
+								trans = set()
+								trans.add(i)
+								trans.add(j)
+								general_tree.add_combination(tmp, trans)
 
 			general_tree.print_values(file, sigma)
-			for t in sku_list:
-				transactions[t].remove(sku)
+			
+			#remove sku to reduce search space
+		for t in sku_list:
+			transactions[t].remove(sku)
 	file.close()
 	
 else:

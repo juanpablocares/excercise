@@ -3,6 +3,42 @@ import itertools
 
 from collections import defaultdict
 
+def reduce_transactions_using_sigma(transactions, skus_counter, sigma):
+	for sku, count in skus_counter.items():
+		if count < sigma:
+			i = 0
+			while i < len(transactions):
+				if sku in transactions[i]:
+					transactions[i].remove(int(sku))
+					if len(transactions[i]) < sigma:
+						del transactions[i]
+					else:
+						i = i + 1
+				else:
+					i = i + 1
+	return transactions
+
+def create_intersection_matrix(transactions):
+	intersections = dict()
+	for i in range(len(transactions)):
+		intersections[i] = dict()
+		for j in range(i + 1, len(transactions)):
+			local_intersection = transactions[i] & transactions[j]
+			if len(local_intersection) >= 3:
+				intersections[i][j] = local_intersection
+	return intersections
+
+def get_all_set(transactions):
+	all_set = set()
+	intersections = {}
+	for i in range(len(transactions)):
+		intersections[i] = {}
+		for j in range(len(transactions)):
+			intersection = transactions[i] & transactions[j]
+			intersections[i][j] = intersection
+			all_set = all_set | intersection
+	return intersections, all_set
+	
 def Combinations(candidates, combination, large, all):
 	"""
 	Recursive algorithm to generate all combinations of
@@ -197,7 +233,7 @@ def FileExist(filePath):
 	"""
 	return os.path.isfile(filePath)
 
-def GetSkus(data):
+def get_skus(data, size_group):
 	"""
 	Given an splitted data of skus, this
 	function transform it in a set
@@ -218,7 +254,7 @@ def GetSkus(data):
 	#I discard a transaction if it has less
 	#than 3 skus because there is no way that
 	#this case can have 3 or more combinations
-	if len(skus) >= 3:
+	if len(skus) >= size_group:
 		return skus
 	else:
 		return set()
