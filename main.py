@@ -52,7 +52,7 @@ if supermarket.FileExist(fileName):
 			transactions.append(skus)
 	
 	transactions = supermarket.reduce_transactions_using_sigma(transactions, skus_counter, sigma)
-	skus_order = sorted(skus_counter, key=skus_counter.__getitem__)
+	skus_order = sorted(skus_counter, key=skus_counter.__getitem__, reverse=True)
 
 	#open write file
 	file = open(fileName.split('.')[0] + '.out', 'w')
@@ -60,7 +60,6 @@ if supermarket.FileExist(fileName):
 	#generate all possible combinations that contain each
 	#SKU in order to reduce the search space
 	for sku in skus_order:
-		print sku
 		#create a local lista where sku exist
 		sku_list = list()
 		for i in range(len(transactions)):
@@ -95,7 +94,7 @@ if supermarket.FileExist(fileName):
 
 			general_tree.print_values(file, sigma)
 			
-			#remove sku to reduce search space
+		#remove sku in order to reduce search space
 		for t in sku_list:
 			transactions[t].remove(sku)
 	file.close()
