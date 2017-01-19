@@ -96,7 +96,7 @@ if supermarket.FileExist(fileName):
 						#are all the combinations that use 0 and after it ends, I can
 						#remove actual sku from the search space
 						intersection.remove(sku)
-						for sku_combination_size in range(size_group - 1, 3):
+						for sku_combination_size in range(size_group - 1, size_intersection):
 							for inter in itertools.combinations(intersection, sku_combination_size):
 								tmp = set()
 								tmp.add(sku)
