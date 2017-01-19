@@ -4,6 +4,22 @@ import itertools
 from collections import defaultdict
 
 def reduce_transactions_using_sigma(transactions, skus_counter, sigma):
+	"""
+	tries to reduce the search space from transactions using sigma value
+
+	Parameters
+	----------
+	transactions : list(set())
+		list of transactions
+	skus_counter : dict()
+		counter dictionary of each sku
+	sigma : int
+		minimum frequency to be written on the file 
+	Returns
+	-------
+	list(set())
+		list of cleaned transactions
+	"""
 	for sku, count in skus_counter.items():
 		if count < sigma:
 			i = 0
@@ -19,6 +35,19 @@ def reduce_transactions_using_sigma(transactions, skus_counter, sigma):
 	return transactions
 
 def create_intersection_matrix(transactions):
+	"""
+	create the intersection matrix in order of
+	reduce calculations
+
+	Parameters
+	----------
+	transactions : list(set())
+		list of transactions
+	Returns
+	-------
+	dict(dict(set()))
+		dict of dict of intersections
+	"""
 	intersections = dict()
 	for i in range(len(transactions)):
 		intersections[i] = dict()
@@ -29,6 +58,20 @@ def create_intersection_matrix(transactions):
 	return intersections
 
 def get_all_set(transactions):
+	"""
+	create all the set within transactions
+
+	Parameters
+	----------
+	transactions : list(set())
+		list of transactions
+	Returns
+	-------
+	dict(dict(set()))
+		dict of dict of intersections
+	set()
+		set of all the transactions
+	"""
 	all_set = set()
 	intersections = {}
 	for i in range(len(transactions)):
@@ -39,7 +82,7 @@ def get_all_set(transactions):
 			all_set = all_set | intersection
 	return intersections, all_set
 	
-def Combinations(candidates, combination, large, all):
+def combinations(candidates, combination, large, all):
 	"""
 	Recursive algorithm to generate all combinations of
 	a given combination
@@ -77,7 +120,7 @@ def Combinations(candidates, combination, large, all):
 			if SetToString(combination) not in all:
 				all[SetToString(combination)] = 1
 		else:
-			all = Combinations(localCandidates, combination, large, all)
+			all = combinations(localCandidates, combination, large, all)
 	return all
 
 def GenerateCombinations(values, large):

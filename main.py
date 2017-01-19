@@ -52,6 +52,7 @@ if supermarket.FileExist(fileName):
 			transactions.append(skus)
 	
 	transactions = supermarket.reduce_transactions_using_sigma(transactions, skus_counter, sigma)
+	#sort by counter from less used to create/delete this values 
 	skus_order = sorted(skus_counter, key=skus_counter.__getitem__, reverse=True)
 
 	#open write file
@@ -70,28 +71,38 @@ if supermarket.FileExist(fileName):
 		#SKU has to be sigma, other way it does not respect
 		#the minimum support level
 		if len(sku_list) >= sigma:
+			#create a tree to store all data of combinations and counts
 			general_tree = Tree.Node(-1)
 			intersection = set()
+			#iterate trough each transaction of intersections
 			for index_1 in range(len(sku_list)):
 				i = sku_list[index_1]
 				prev_intersection = set(transactions[i])
 				for index_2 in range(index_1 + 1, len(sku_list)):
 					j = sku_list[index_2]
 					intersection = set(transactions[j]) & prev_intersection
-				
+					
+					#if the intersection length is at least size_group (3)
+					#create the combinations of the intersection to add it into
+					#the tree
 					if len(intersection) >= size_group:
 						size_intersection = len(intersection)
+						#to reduce the combinations an taking into account the
+						#sku iterator I remove it and add it in each created
+						#combination
+						#for example if the intersection is 0,1,2,3 remove '0'
+						#create combinations of 1,2,3 = (1,2), (1,3), (2,3)
+						#and then I readded '0' (0,1,2), (0,1,3), (0,2,3) and those
+						#are all the combinations that use 0 and after it ends, I can
+						#remove actual sku from the search space
 						intersection.remove(sku)
-						for sku_combination_size in range(size_group - 1, size_intersection):
+						for sku_combination_size in range(size_group - 1, 3):
 							for inter in itertools.combinations(intersection, sku_combination_size):
 								tmp = set()
 								tmp.add(sku)
 								tmp = tmp | set(inter)
-								trans = set()
-								trans.add(i)
-								trans.add(j)
+								trans = set((i,j))
 								general_tree.add_combination(tmp, trans)
-
 			general_tree.print_values(file, sigma)
 			
 		#remove sku in order to reduce search space
