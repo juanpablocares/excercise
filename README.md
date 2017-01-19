@@ -41,26 +41,15 @@ This version as well include the given data set:
 The flow of the algorithm follow the next steps
 ```
  read data transforming each transaction into a list of sets
- combinations_counter = {}
- iterate the first to the last transaction
-   combinations_transaction = {}
-   iterate from the previous transaction + 1 to the last one
-    find the intersection between both transactions
-    if len(intersection) >= 3
-      generate all combinations of the intersection
-      if some combination is not already added into combinations_transaction
-        add into combinations_transaction
-    append combinations_transaction into combinations_counter
- create file using combinations_counter
+ iterate trough each sku
+   tree_of_combinations = {}
+   iterate from each transaction + 1 to the last one
+     iterate from before transaction + 1 to the last one
+       find the intersection between both transactions
+       if len(intersection) >= 3
+         remove actual sku from intersection
+         generate all combinations of intersections
+         add to each combination 'sku'
+         add to tree_of_combinations
+   create file using tree_of_combinations
 ```
-
-##Combination Algorithm
-
-I have two versions to get all the combinations of a given intersetion.
-The first one use itertools.combinations and the second one is my version.
-To activate one or the other you can see more detail in supermarket.py file
-in line 73.
-By default it is activated "itertools.combinations" my version takes
-longer time for that reason I prefered this way :confused:. There must be some
-combinations versions in internet but I prefered to create my own version without
-see other algorithms.
